@@ -1,0 +1,190 @@
+MERGE STATEMENT - MERGE statement that simplifies data manipulation by combining INSERT, UPDATE, and DELETE operations 
+into a single statement. The MERGE statement is often referred to as UPSERT statement.
+
+CREATE TABLE leads(
+    lead_id serial PRIMARY key,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    active bool NOT NULL DEFAULT TRUE
+);
+CREATE TABLE customers(
+    customer_id serial PRIMARY key,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    active bool NOT NULL DEFAULT TRUE
+);
+
+MERGE SYNTAX;
+MERGE INTO target_table
+USING source_query
+ON merge_condition
+WHEN MATCH [AND condition] THEN {merge_update | merge_delete | DO NOTHING }
+WHEN NOT MATCHED [AND condition] THEN { merge_insert | DO NOTHING };
+
+1) First, insert two rows into the leads table:
+INSERT INTO leads(name, email)
+VALUES
+   ('John Doe', 'john.doe@gmail.com'),
+   ('Jane Doe', 'jane.doe@yahoo.com')
+RETURNING *;
+
+Second, insert rows from the leads table into the customers table using the MERGE statement:
+
+MERGE INTO customers c
+USING leads l ON c.email = l.email
+WHEN NOT MATCHED THEN 
+   INSERT (name, email)
+   VALUES(l.name, l.email);
+   
+   Third, retrieve data from the customers table:
+   SELECT * FROM customers;
+   
+   2) Using the MERGE statement to update and insert rows from the source table into the table
+First, insert a new row into the leads table and update the name of the row with id 2:
+INSERT INTO leads(name, email)
+VALUES('Alice Smith', 'alice.smith@outlook.com');
+	
+UPDATE leads
+SET name = 'Jane Gate'
+WHERE lead_id = 2;
+
+Second, retrieve data from the leads table:
+
+dvdrental=# SELECT * FROM leads
+dvdrental-# ORDER BY lead_id;
+
+The leads table has a modified row with id 2 and a new row with id 3.
+
+Third, add the new row from leads table to the customers table and update the name and email for the updated row:
+
+MERGE INTO customers c
+USING leads l ON c.email = l.email
+WHEN NOT MATCHED THEN 
+   INSERT (name, email)
+   VALUES(l.name, l.email)
+WHEN MATCHED THEN
+   UPDATE SET 
+      name = l.name, 
+      email = l.email;
+	  
+	  3) Using the MERGE statement to update, insert, and delete rows
+	  
+	  INSERT INTO leads(name, email)
+VALUES('Bob Climo', 'blob.climo@gmail.com');
+
+UPDATE leads
+SET active = false
+WHERE lead_id = 2;
+
+DELETE
+MERGE INTO customers c
+USING leads l ON c.email = l.email
+WHEN NOT MATCHED THEN 
+   INSERT (name, email)
+   VALUES(l.name, l.email)
+WHEN MATCHED AND l.active = false THEN
+   DELETE
+WHEN MATCHED AND l.active = true THEN
+   UPDATE SET 
+      name = l.name, 
+      email = l.email;
+	  
+	  
+	  Upsert is a combination of update and insert. The upsert allows you to update an existing row or insert a new one if it doesn’t exist.
+
+PostgreSQL does not have the UPSERT statement but it supports the upsert operation via the INSERT...ON CONFLICT statement.
+]
+INSERT INTO table_name (column1, column2, ...)
+VALUES (value1, value2, ...)
+ON CONFLICT (conflict_column)
+DO NOTHING | DO UPDATE SET column1 = value1, column2 = value2, ...;
+	  
+	  
+	  PostgreSQL UPSERT examples
+	  The following statements create the inventory table and insert data into it:
+	  
+	  CREATE TABLE inventory1(
+   id INT PRIMARY KEY,
+   name VARCHAR(255) NOT NULL,
+   price DECIMAL(10,2) NOT NULL,
+   quantity INT NOT NULL
+);
+
+INSERT INTO inventory1(id, name, price, quantity)
+VALUES
+	(1, 'A', 15.99, 100),
+	(2, 'B', 25.49, 50),
+	(3, 'C', 19.95, 75)
+RETURNING *;
+
+ PostgreSQL INSERT … ON CONFLICT statement:
+ 
+ INSERT INTO inventory1 (id, name, price, quantity)
+VALUES (1, 'A', 16.99, 120)
+ON CONFLICT(id) 
+DO UPDATE SET
+  price = EXCLUDED.price,
+  quantity = EXCLUDED.quantity;
+  
+  SELECT * FROM inventory1
+WHERE id = 1;
+
+Inserting data example
+The following example uses the INSERT ... ON CONFLICT statement to insert a new row into the inventory table:
+
+INSERT INTO inventory1 (id, name, price, quantity)
+VALUES (4, 'D', 29.99, 20)
+ON CONFLICT(id) 
+DO UPDATE SET
+  price = EXCLUDED.price,
+  quantity = EXCLUDED.quantity;
+  
+  SELECT * FROM inventory1
+ORDER BY id;
+
+
+
+PostgreSQL DATE Data Type:
+
+SELECT now();
+
+
+STRING FUNCTION:
+
+select * from customer
+select * from film
+
+-- INITCAP
+select INITCAP(email) as "Using INITCAP() ", email from customer
+
+-- ASCII
+select ASCII(first_name) as "Using ASCII() ", first_name from customer
+
+-- CHR
+select CHR(customer_id) as "Using CHR() ", customer_id from customer
+
+-- Lower
+select Lower(first_name) as "Using Lower() ", first_name from customer
+
+-- bit_length
+select bit_length(first_name) as "Using bit_length() ", first_name from customer
+
+-- char_length
+select char_length(first_name) as "Using char_length() ", first_name from customer
+
+-- overlay
+select overlay(first_name placing 'Ajith' from 2 for 4) as "Using overlay() ", first_name from customer
+
+-- position
+select position('a' in first_name) as "Using position() ", first_name from customer
+
+-- substring
+select substring(first_name from 1 for 3) as "Using substring(from 1 for 3	) ", first_name from customer
+
+
+
+
+
+
+
+

@@ -1,0 +1,23 @@
+Create or replace view CustomerPayments
+as
+select customername as cname, checknumber as cheque, paymentdate, amount
+from customers
+inner join
+payments using(customernumber);
+
+mysql> select cname,amount from customerpayments limit 10;
++----------------------------+----------+
+| cname                      | amount   |
++----------------------------+----------+
+| Atelier graphique          |  6066.78 |
+| Atelier graphique          | 14571.44 |
+| Atelier graphique          |  1676.14 |
+| Signal Gift Stores         | 14191.12 |
+| Signal Gift Stores         | 32641.98 |
+| Signal Gift Stores         | 33347.88 |
+| Australian Collectors, Co. | 45864.03 |
+| Australian Collectors, Co. | 82261.22 |
+| Australian Collectors, Co. |  7565.08 |
+| Australian Collectors, Co. | 44894.74 |
++----------------------------+----------+
+10 rows in set (0.04 sec)
